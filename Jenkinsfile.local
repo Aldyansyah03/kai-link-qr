@@ -1,0 +1,43 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout & Setup Environment') {
+            steps {
+                echo 'Memulai proses build di Jenkins Lokal...'
+                bat 'copy /Y .env.example .env'
+            }
+        }
+
+        stage('Install Composer Dependencies') {
+            steps {
+                echo 'Menginstal dependensi PHP (Composer)...'
+                bat 'composer install --no-interaction --prefer-dist'
+            }
+        }
+
+        stage('Install NPM & Build Frontend') {
+            steps {
+                echo 'Menginstal dependensi JS dan mengompilasi Vite...'
+                bat 'npm install'
+                bat 'npm run build'
+            }
+        }
+
+        stage('Database & Application Setup') {
+            steps {
+                echo 'Membuat aplikasi siap dijalankan...'
+                bat 'php artisan key:generate'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '=== BUILD JENKINS LOKAL BERHASIL SUKSES! ==='
+        }
+        failure {
+            echo '=== BUILD JENKINS LOKAL GAGAL ==='
+        }
+    }
+}
